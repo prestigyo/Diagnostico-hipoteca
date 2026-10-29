@@ -520,9 +520,20 @@ const CONFIG = {
 
   // Datos que caducan: valor + fecha + fuente. Sin valor verificado → null y "[VERIFICAR]".
   euribor: { valor: null, fecha: "[VERIFICAR]", fuente: "Banco de España" },
-  // [VERIFICAR] requisitos vigentes del Código de Buenas Prácticas (RDL 6/2012) en el BOE.
-  // Mientras requisitos sea null, la web muestra un texto genérico sin cifras.
-  cbp: { requisitos: null, fecha: "[VERIFICAR]", fuente: "BOE" },
+  iprem: {
+    anual14Pagas: 8400,
+    fecha: "2026",
+    fuente: "[VERIFICAR] IPREM 2026 en la Ley de Presupuestos o su prórroga"
+  },
+  cbp: {
+    fecha: "29/10/2026",
+    fuente: "Banco de España (Portal del Cliente Bancario) y resumen de requisitos tras el RDL 19/2022. [VERIFICAR] con el texto consolidado del RDL 6/2012 en el BOE antes de producción",
+    ingresosVecesIPREM: 3,          // límite general
+    ingresosVecesIPREMAmpliado: 4,  // discapacidad > 33 %, dependencia o enfermedad que impida trabajar (5 en algunos casos de discapacidad)
+    esfuerzoMinimo: 0.50,           // cuota hipotecaria / ingresos netos
+    esfuerzoMinimoAmpliado: 0.40,   // en los casos del límite ampliado
+    medidasSubidaTiposFin: "finales de noviembre de 2025 (finales de mayo de 2026 en zonas afectadas por la DANA)"
+  },
 
   // Supuestos del cálculo (no son datos legales; se muestran al usuario)
   umbrales: {
@@ -563,6 +574,10 @@ const CONFIG = {
      parseNum("3.5", true) = 3,5  · parseNum("1.500", true) = 1,5 (en tipos el punto es decimal)
      validar({capital: 500, cuota: 50, ...}) → 1 aviso (capital fuera de rango)
      validar({cuota ≥ capital})       → 1 aviso
+     cbpResultado(800, 1500, sí) = "encaja"   (53 % de esfuerzo; 18.000 €/año ≤ 3 × IPREM)
+     cbpResultado(700, 1500, sí) = "ampliado" (47 %: supera el 40 %, no el 50 %)
+     cbpResultado(700, 2500, sí) = "no"       (28 %)
+     cbpResultado(800, 1500, no) = "noHabitual"
    ===================================================================== */
 function cuotaFrancesa(capital, tipoAnualPct, meses) {
   const r = tipoAnualPct / 1200;
@@ -598,6 +613,15 @@ function parseNum(texto, decimalPunto) {
   const n = parseFloat(v);
   return isNaN(n) ? null : n;
 }
+// Código de Buenas Prácticas: esfuerzo = cuota hipotecaria / ingresos netos (sin otras deudas)
+// "encaja" · "ampliado" (solo con discapacidad, dependencia o enfermedad) · "no" · "noHabitual"
+function cbpResultado(cuota, ingresosMes, habitual) {
+  if (!habitual) return "noHabitual";
+  const C = CONFIG.cbp, esf = cuota / ingresosMes, anual = ingresosMes * 12, iprem = CONFIG.iprem.anual14Pagas;
+  if (esf > C.esfuerzoMinimo && anual <= C.ingresosVecesIPREM * iprem) return "encaja";
+  if (esf > C.esfuerzoMinimoAmpliado && anual <= C.ingresosVecesIPREMAmpliado * iprem) return "ampliado";
+  return "no";
+}
 function validar(d) {
   const R = CONFIG.rangos, fuera = (v, [a, b]) => v != null && (v < a || v > b);
   const avisos = [];
@@ -629,6 +653,10 @@ function runTests() {
     ["validar cuota ≥ capital", validar({ ...base, capital: 5000, cuota: 6000 }).length, 1],
     ["validar euríbor 12", validar({ ...base, indice: 12 }).length, 1],
     ["validar fijo 8 %", validar({ ...base, tipo: "fijo", diferencial: 8 }).length, 0],
+    ["CBP encaja", cbpResultado(800, 1500, true), "encaja"],
+    ["CBP ampliado", cbpResultado(700, 1500, true), "ampliado"],
+    ["CBP no llega", cbpResultado(700, 2500, true), "no"],
+    ["CBP no habitual", cbpResultado(800, 1500, false), "noHabitual"],
     ["cuota 150k 4% 25a", cuotaFrancesa(150000, 4, 300), 791.76],
     ["cuota tipo 0", cuotaFrancesa(150000, 0, 300), 500],
     ["cuota 120k 3,5% 20a", cuotaFrancesa(120000, 3.5, 240), 695.95],
@@ -730,6 +758,7 @@ function calcular() {
   const umbral = umbralEquilibrio(deudaTotal);
   supuestos.push(`Tasa de esfuerzo = (cuota + otras deudas) / ingresos netos. Referencias usadas: tensión por encima del ${pct(CONFIG.umbrales.esfuerzoTension)}, riesgo por encima del ${pct(CONFIG.umbrales.esfuerzoRiesgo)}.`);
   supuestos.push(`Deuda total estimada = capital + cuotas impagadas + demora y costas = ${eur(deudaTotal)}. La cifra real está en el certificado de deuda del banco.`);
+  supuestos.push("Código de Buenas Prácticas: el Código calcula los ingresos a su manera; aquí comparamos con tus ingresos netos de 12 meses, así que el resultado es orientativo.");
   supuestos.push(`Gastos de venta supuestos: ${pct(CONFIG.gastosVenta.porcentaje)} del precio + ${eur(CONFIG.gastosVenta.fijos)}.`);
 
   // Semáforo
@@ -801,6 +830,7 @@ function pintarEscalera(c) {
   const conImpagos = fp <= 4;
   const valor = d.estimacion;
   const tramo = valor == null ? null : tramoVenta(valor, c.deudaTotal, c.umbral);
+  const cbp = cbpResultado(c.cuotaNueva, d.ingresos, d.habitual === "si");
   const pasos = [
     ["Diagnóstico", "Hecho", true, "Lo tienes arriba. Para afinar la deuda total, pide el certificado de deuda con la carta A."],
     ["Ajustes propios",
@@ -819,11 +849,12 @@ function pintarEscalera(c) {
             `Una cuota que podrías asumir rondaría los ${eur(c.cuotaAsumible)}/mes. La carta B sirve para pedirlo por escrito.`) +
       (fp <= 2 ? " Con el procedimiento en marcha, hazlo junto a tu abogado." : "")],
     ["Medidas públicas (Código de Buenas Prácticas)",
-      d.habitual === "si" ? "A valorar" : "No parece encajar",
-      d.habitual === "si",
-      d.habitual !== "si" ? "Está pensado para la vivienda habitual." :
-        CONFIG.cbp.requisitos ? `${CONFIG.cbp.requisitos} Pregunta a tu banco si está adherido (carta A).` :
-        "Tiene requisitos de ingresos y de esfuerzo que conviene comprobar; pregunta a tu banco si está adherido (carta A)."],
+      cbp === "encaja" ? "Puede encajar" : cbp === "noHabitual" ? "No parece encajar" : "A valorar",
+      cbp === "encaja" || cbp === "ampliado",
+      cbp === "noHabitual" ? "Está pensado para la vivienda habitual." :
+        cbp === "encaja" ? "Puede encajar. Pregunta a tu banco si está adherido (carta A)." :
+        cbp === "ampliado" ? "Puede encajar si en tu familia hay discapacidad, dependencia o una enfermedad que impida trabajar. Pregunta a tu banco si está adherido (carta A)." :
+        "Por tus datos, parece que no llegas a los requisitos. Si tu situación ha cambiado, pregúntalo igualmente."],
     ["Cambiar de banco",
       conImpagos || c.esfuerzo > CONFIG.umbrales.esfuerzoRiesgo ? "No parece encajar" : "A valorar",
       !(conImpagos || c.esfuerzo > CONFIG.umbrales.esfuerzoRiesgo),
