@@ -119,6 +119,19 @@
   table { width: 100%; border-collapse: collapse; font-size: .9rem; }
   th, td { text-align: left; vertical-align: top; padding: 8px; border-bottom: 1px solid var(--border); }
   .table-scroll { overflow-x: auto; }
+  /* Comparador en móvil: una tarjeta por salida */
+  @media (max-width: 639px) {
+    #t-comparador thead { position: absolute; left: -9999px; }
+    #t-comparador, #t-comparador tbody, #t-comparador tr, #t-comparador th, #t-comparador td { display: block; width: 100%; }
+    #t-comparador tr { display: flex; flex-direction: column; }
+    #t-comparador td { order: 2; }
+    #t-comparador td:last-child { order: 1; } /* «Con qué te quedas» justo bajo el título */
+    #t-comparador tr { border: 1px solid var(--border); border-radius: var(--radius); padding: 4px 12px; margin-bottom: 12px; background: var(--surface-2); }
+    #t-comparador th[scope=row] { font-size: 1rem; border-bottom: 1px solid var(--border); }
+    #t-comparador td { border-bottom: 0; padding: 6px 0; }
+    #t-comparador td::before { content: attr(data-label); display: block; font-size: .78rem; font-weight: 700; color: var(--muted); }
+    #t-comparador td:last-child { font-weight: 600; }
+  }
   pre.letter { white-space: pre-wrap; font-family: inherit; background: var(--surface-2); padding: 16px; border-radius: 8px; font-size: .9rem; }
   footer { border-top: 1px solid var(--border); padding: 24px 0 48px; font-size: .85rem; color: var(--muted); }
   [hidden] { display: none !important; }
@@ -301,6 +314,7 @@
             <button class="btn secondary" type="button" data-carta="B">Ver carta B</button>
           </div>
           <div id="carta-out" hidden>
+            <p class="note small" id="carta-aviso-caso" hidden></p>
             <pre class="letter" id="carta-texto"></pre>
             <div class="btn-row"><button class="btn" type="button" id="carta-descargar">Descargar (.txt)</button></div>
           </div>
@@ -314,6 +328,7 @@
           <p class="small">La hacemos nosotros. Es una valoración profesional orientativa, no una tasación oficial: antes de firmar cualquier operación puedes pedir una tasación independiente, y te lo recomendamos si el tiempo lo permite.</p>
           <form id="f-valoracion" novalidate>
             <div class="grid2">
+              <div class="field"><label for="v-municipio">Municipio y barrio</label><input id="v-municipio" name="municipio_barrio" type="text" placeholder="València, Benimaclet" required></div>
               <div class="field"><label for="v-superficie">Superficie</label><div class="inline"><input id="v-superficie" name="superficie" type="text" inputmode="numeric"><span class="unit">m²</span></div></div>
               <div class="field"><label for="v-hab">Habitaciones</label><input id="v-hab" name="habitaciones" type="text" inputmode="numeric"></div>
               <div class="field"><label for="v-banos">Baños</label><input id="v-banos" name="banos" type="text" inputmode="numeric"></div>
@@ -340,6 +355,7 @@
               <div class="field"><label for="v-contacto">Teléfono o email</label><input id="v-contacto" name="contacto" type="text" autocomplete="tel" required></div>
               <div class="field"><label for="v-visita">Disponibilidad para visita</label><input id="v-visita" name="disponibilidad" type="text" placeholder="Tardes entre semana"></div>
             </div>
+            <label class="radio"><input type="checkbox" id="v-consent-contacto" required> Acepto que uséis estos datos para contactarme sobre la valoración. <span data-config="privacidadTexto"></span></label>
             <p class="small muted" data-config="plazoValoracionTexto"></p>
             <button class="btn" type="submit">Solicitar valoración</button>
             <p class="small" id="v-resultado" role="status"></p>
@@ -438,7 +454,7 @@
    CONFIG · todo lo que puede cambiar vive aquí (CLAUDE.md §6 y §8)
    ===================================================================== */
 const CONFIG = {
-  nombre: "MeQuedoConTuHipoteca",            // nombre de trabajo: SE VA A CAMBIAR
+  nombre: "Diagnóstico hipotecario",         // provisional hasta decidir la marca
   dominio: "[PENDIENTE: dominio]",
   email: "[PENDIENTE: email]",
   telefono: "[PENDIENTE: teléfono]",
@@ -451,14 +467,22 @@ const CONFIG = {
 
   // Datos que caducan: valor + fecha + fuente. Sin valor verificado → null y "[VERIFICAR]".
   euribor: { valor: null, fecha: "[VERIFICAR]", fuente: "Banco de España" },
-  cbp: { requisitos: "[VERIFICAR] requisitos vigentes del Código de Buenas Prácticas (RDL 6/2012) en el BOE", fecha: "[VERIFICAR]", fuente: "BOE" },
+  // [VERIFICAR] requisitos vigentes del Código de Buenas Prácticas (RDL 6/2012) en el BOE.
+  // Mientras requisitos sea null, la web muestra un texto genérico sin cifras.
+  cbp: { requisitos: null, fecha: "[VERIFICAR]", fuente: "BOE" },
 
   // Supuestos del cálculo (no son datos legales; se muestran al usuario)
   umbrales: {
     esfuerzoTension: 0.30,     // por encima: en tensión
     esfuerzoRiesgo: 0.40,      // por encima: en riesgo
     mesesRiesgo: 6,            // si el ahorro cubre menos meses de déficit: en riesgo
-    colchonMeses: 3            // ahorro que conviene no tocar antes de amortizar
+    colchonMeses: 3,           // ahorro que conviene no tocar antes de amortizar
+    colchonPct: 0.10           // parte de los ingresos que se reserva al calcular la cuota asumible
+  },
+  // Rangos admitidos en el formulario (validación amable)
+  rangos: {
+    indice: [-1, 10], diferencial: [0, 6], tipoFijo: [0, 10],
+    anios: [1, 40], capital: [1000, 2000000]
   },
   gastosVenta: { porcentaje: 0.03, fijos: 1500 }, // supuesto: comisión + notaría/registro/cancelación
   ampliacionAnios: 5,          // ampliación de plazo que se simula al negociar
@@ -477,6 +501,15 @@ const CONFIG = {
      mesesParaCuota(150000, 4, 700)   = 377 meses
      mesesParaCuota(150000, 4, 500)   = Infinity (la cuota no cubre ni los intereses)
      umbralEquilibrio(180000)         = 187.113,40 € (3 % + 1.500 € de gastos de venta)
+     cuotaAsumible(2100, 1000, 150)   = 740 €      (2100 − 1000 − 150 − 10 % de 2100)
+     cuotaAsumible(1500, 1200, 200)   = −50 €      (≤ 0: sin margen para ninguna cuota)
+     tramoVenta(200000, 151300, 157526) = "deja"   (≥ umbral)
+     tramoVenta(155000, 151300, 157526) = "cerca"  (entre deuda total y umbral)
+     tramoVenta(140000, 151300, 157526) = "quita"  (< deuda total)
+     parseNum("150.000") = 150000 · parseNum("0,99", true) = 0,99
+     parseNum("3.5", true) = 3,5  · parseNum("1.500", true) = 1,5 (en tipos el punto es decimal)
+     validar({capital: 500, cuota: 50, ...}) → 1 aviso (capital fuera de rango)
+     validar({cuota ≥ capital})       → 1 aviso
    ===================================================================== */
 function cuotaFrancesa(capital, tipoAnualPct, meses) {
   const r = tipoAnualPct / 1200;
@@ -492,8 +525,57 @@ function mesesParaCuota(capital, tipoAnualPct, cuota) {
 function umbralEquilibrio(deudaTotal) {
   return (deudaTotal + CONFIG.gastosVenta.fijos) / (1 - CONFIG.gastosVenta.porcentaje);
 }
+// Lo que el presupuesto permite pagar dejando un colchón del colchonPct de los ingresos
+function cuotaAsumible(ingresos, gastos, deudas) {
+  return ingresos - gastos - deudas - ingresos * CONFIG.umbrales.colchonPct;
+}
+// "deja": vender deja dinero · "cerca": cubre la deuda, no todos los gastos · "quita": no cubre la deuda
+function tramoVenta(valor, deudaTotal, umbral) {
+  if (valor >= umbral) return "deja";
+  if (valor >= deudaTotal) return "cerca";
+  return "quita";
+}
+// decimalPunto: en tipos de interés el punto siempre es decimal ("3.5" = 3,5)
+function parseNum(texto, decimalPunto) {
+  let v = String(texto).trim().replace(/\s|€|%/g, "");
+  if (v === "") return null;
+  if (decimalPunto) v = v.replace(",", ".");
+  else if (/,/.test(v)) v = v.replace(/\./g, "").replace(",", ".");
+  else if (/^\d{1,3}(\.\d{3})+$/.test(v)) v = v.replace(/\./g, "");
+  const n = parseFloat(v);
+  return isNaN(n) ? null : n;
+}
+function validar(d) {
+  const R = CONFIG.rangos, fuera = (v, [a, b]) => v != null && (v < a || v > b);
+  const avisos = [];
+  if (fuera(d.capital, R.capital)) avisos.push("El capital pendiente debería estar entre 1.000 y 2.000.000 €. ¿Puede que sobre o falte un cero?");
+  if (fuera(d.anios, R.anios)) avisos.push("Los años que quedan suelen estar entre 1 y 40.");
+  if (d.cuota != null && d.capital != null && d.cuota >= d.capital) avisos.push("La cuota mensual debería ser bastante menor que lo que queda por pagar. Revisa las dos cifras.");
+  if (d.tipo === "fijo") {
+    if (fuera(d.diferencial, R.tipoFijo)) avisos.push("Un tipo fijo suele estar entre 0 y 10 %. Revisa la cifra.");
+  } else {
+    if (fuera(d.diferencial, R.diferencial)) avisos.push("El diferencial suele estar entre 0 y 6 %. Míralo en tu contrato o recibo.");
+    if (fuera(d.indice, R.indice)) avisos.push("El euríbor debería estar entre −1 y 10 %. Revisa la cifra de tu carta de revisión.");
+  }
+  return avisos;
+}
 function runTests() {
+  const base = { tipo: "variable", capital: 150000, anios: 25, cuota: 650, diferencial: 0.99, indice: 3 };
   const casos = [
+    ["asumible con margen", cuotaAsumible(2100, 1000, 150), 740],
+    ["asumible sin margen", cuotaAsumible(1500, 1200, 200), -50],
+    ["tramo deja", tramoVenta(200000, 151300, 157526), "deja"],
+    ["tramo cerca", tramoVenta(155000, 151300, 157526), "cerca"],
+    ["tramo quita", tramoVenta(140000, 151300, 157526), "quita"],
+    ["parse miles", parseNum("150.000"), 150000],
+    ["parse coma tipo", parseNum("0,99", true), 0.99],
+    ["parse punto tipo", parseNum("3.5", true), 3.5],
+    ["parse 1.500 tipo", parseNum("1.500", true), 1.5],
+    ["validar correcto", validar(base).length, 0],
+    ["validar capital bajo", validar({ ...base, capital: 500, cuota: 50 }).length, 1],
+    ["validar cuota ≥ capital", validar({ ...base, capital: 5000, cuota: 6000 }).length, 1],
+    ["validar euríbor 12", validar({ ...base, indice: 12 }).length, 1],
+    ["validar fijo 8 %", validar({ ...base, tipo: "fijo", diferencial: 8 }).length, 0],
     ["cuota 150k 4% 25a", cuotaFrancesa(150000, 4, 300), 791.76],
     ["cuota tipo 0", cuotaFrancesa(150000, 0, 300), 500],
     ["cuota 120k 3,5% 20a", cuotaFrancesa(120000, 3.5, 240), 695.95],
@@ -503,7 +585,7 @@ function runTests() {
     ["umbral 180k", umbralEquilibrio(180000), 187113.40]
   ];
   casos.forEach(([n, got, exp]) => {
-    const ok = exp === Infinity ? got === Infinity : Math.abs(got - exp) < 0.01;
+    const ok = typeof exp === "string" || exp === Infinity ? got === exp : Math.abs(got - exp) < 0.01;
     console[ok ? "log" : "error"]((ok ? "OK  " : "FALLO ") + n, got, exp);
   });
 }
@@ -514,15 +596,11 @@ function runTests() {
 const $ = (s) => document.querySelector(s);
 const eur = (n) => new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
 const pct = (n) => new Intl.NumberFormat("es-ES", { style: "percent", maximumFractionDigits: 0 }).format(n);
+// admite "150.000", "150000", "0,99" y "0.99"; en diferencial e índice el punto es decimal
 function num(id) {
   const el = document.getElementById(id);
-  if (!el || el.value.trim() === "") return null;
-  // admite "150.000", "150000", "0,99" y "0.99"
-  let v = el.value.trim().replace(/\s|€|%/g, "");
-  if (/,/.test(v)) v = v.replace(/\./g, "").replace(",", ".");
-  else if (/^\d{1,3}(\.\d{3})+$/.test(v)) v = v.replace(/\./g, "");
-  const n = parseFloat(v);
-  return isNaN(n) ? null : n;
+  if (!el) return null;
+  return parseNum(el.value, id === "diferencial" || id === "indice");
 }
 const radio = (name) => (document.querySelector(`input[name=${name}]:checked`) || {}).value;
 
@@ -572,6 +650,8 @@ function calcular() {
   if (d.gastos == null) faltan.push("los gastos básicos");
   if (d.tipo !== "variable" && d.tipo !== "mixto" && d.diferencial == null) faltan.push("tu tipo de interés");
   if (faltan.length) return { error: "Para calcular nos falta: " + faltan.join(", ") + "." };
+  const avisos = validar(d);
+  if (avisos.length) return { error: avisos.join(" ") };
 
   const meses = Math.round(d.anios * 12);
   const supuestos = [`Sistema francés (cuota constante), ${meses} meses restantes y capital de ${eur(d.capital)}.`];
@@ -608,12 +688,12 @@ function calcular() {
   else estado = "estable";
 
   // Cuota asumible (para negociar) y plazo necesario
-  // lo que el presupuesto permite pagar, sin pasar de la cuota tras la revisión
-  const cuotaAsumible = Math.max(0, Math.min(d.ingresos - d.gastos - d.deudas, cuotaNueva));
+  const asumible = cuotaAsumible(d.ingresos, d.gastos, d.deudas);
+  supuestos.push(`Cuota asumible = ingresos − gastos básicos − otras deudas − un colchón del ${pct(CONFIG.umbrales.colchonPct)} de los ingresos = ${eur(asumible)}.`);
   const tipoCalc = tipoNuevo != null ? tipoNuevo : (d.tipo === "fijo" && d.diferencial != null ? d.diferencial : null);
   const cuotaAmpliada = tipoCalc != null ? cuotaFrancesa(d.capital, tipoCalc, meses + CONFIG.ampliacionAnios * 12) : null;
 
-  return { d, meses, cuotaNueva, tipoNuevo, esfuerzo, margen, aguante, deudaTotal, umbral, estado, cuotaAsumible, cuotaAmpliada, supuestos };
+  return { d, meses, cuotaNueva, tipoNuevo, esfuerzo, margen, aguante, deudaTotal, umbral, estado, cuotaAsumible: asumible, cuotaAmpliada, supuestos };
 }
 
 const ESTADOS = {
@@ -667,6 +747,7 @@ function pintarEscalera(c) {
   const fp = FASES[d.fase].prioridad;
   const conImpagos = fp <= 4;
   const valor = d.estimacion;
+  const tramo = valor == null ? null : tramoVenta(valor, c.deudaTotal, c.umbral);
   const pasos = [
     ["Diagnóstico", "Hecho", true, "Lo tienes arriba. Para afinar la deuda total, pide el certificado de deuda con la carta A."],
     ["Ajustes propios",
@@ -676,15 +757,20 @@ function pintarEscalera(c) {
         (-c.margen < d.ingresos * 0.1 ? `El desfase (${eur(-c.margen)}/mes) es pequeño: ajustar gastos puede bastar.` :
           `El desfase (${eur(-c.margen)}/mes) es grande para cubrirlo solo recortando gastos.`) +
         (d.ahorro > (d.gastos + c.cuotaNueva) * CONFIG.umbrales.colchonMeses ? " Tienes ahorro por encima de un colchón razonable: amortizar una parte podría compensar." : "")],
-    ["Negociar con el banco", "Encaja", true,
-      (c.cuotaAmpliada ? `Ampliando el plazo ${CONFIG.ampliacionAnios} años, la cuota quedaría en unos ${eur(c.cuotaAmpliada)}/mes. ` : "") +
-      `Una cuota que podrías asumir rondaría los ${eur(c.cuotaAsumible)}/mes. La carta B sirve para pedirlo por escrito.` +
+    ["Negociar con el banco", c.cuotaAsumible <= 0 ? "A valorar" : "Encaja", c.cuotaAsumible > 0,
+      (c.cuotaAsumible <= 0
+        ? "Con estos números no queda margen para ninguna cuota tras los gastos básicos. Puedes pedir carencia y ampliación de plazo con la carta B, pero conviene mirar ya las salidas 6 a 9 y hablar con nosotros (más abajo, en «Hablar con nosotros»)."
+        : c.cuotaAsumible >= c.cuotaNueva
+          ? `Tu presupuesto permite asumir la cuota tras la revisión (te quedaría margen para unos ${eur(c.cuotaAsumible)}/mes). Ahora conviene pedir la documentación con la carta A, no negociar con la B.`
+          : (c.cuotaAmpliada ? `Ampliando el plazo ${CONFIG.ampliacionAnios} años, la cuota quedaría en unos ${eur(c.cuotaAmpliada)}/mes. ` : "") +
+            `Una cuota que podrías asumir rondaría los ${eur(c.cuotaAsumible)}/mes. La carta B sirve para pedirlo por escrito.`) +
       (fp <= 2 ? " Con el procedimiento en marcha, hazlo junto a tu abogado." : "")],
     ["Medidas públicas (Código de Buenas Prácticas)",
       d.habitual === "si" ? "A valorar" : "No parece encajar",
       d.habitual === "si",
-      d.habitual === "si" ? `Puede aplicarse si cumples los requisitos y tu banco está adherido (pregúntalo con la carta A). ${CONFIG.cbp.requisitos}.` :
-        "Está pensado para la vivienda habitual."],
+      d.habitual !== "si" ? "Está pensado para la vivienda habitual." :
+        CONFIG.cbp.requisitos ? `${CONFIG.cbp.requisitos} Pregunta a tu banco si está adherido (carta A).` :
+        "Tiene requisitos de ingresos y de esfuerzo que conviene comprobar; pregunta a tu banco si está adherido (carta A)."],
     ["Cambiar de banco",
       conImpagos || c.esfuerzo > CONFIG.umbrales.esfuerzoRiesgo ? "No parece encajar" : "A valorar",
       !(conImpagos || c.esfuerzo > CONFIG.umbrales.esfuerzoRiesgo),
@@ -692,10 +778,11 @@ function pintarEscalera(c) {
         c.esfuerzo > CONFIG.umbrales.esfuerzoRiesgo ? "Con esta tasa de esfuerzo es difícil que otro banco la acepte." :
         "Compara ofertas: solo compensa si mejoran las condiciones después de gastos."],
     ["Vender a tiempo",
-      valor == null ? "A valorar" : (valor >= c.umbral ? "Encaja" : "A valorar"),
-      valor == null || valor >= c.umbral,
-      valor == null ? `Por encima de ${eur(c.umbral)}, vender te dejaría dinero. Valor: pendiente de valoración.` :
-        valor >= c.umbral ? `Con tu estimación, una venta ordenada te dejaría unos ${eur(valor * (1 - CONFIG.gastosVenta.porcentaje) - CONFIG.gastosVenta.fijos - c.deudaTotal)}.` :
+      tramo === "deja" ? "Encaja" : "A valorar",
+      tramo == null || tramo === "deja",
+      tramo == null ? `Por encima de ${eur(c.umbral)}, vender te dejaría dinero. Valor: pendiente de valoración.` :
+        tramo === "deja" ? `Con tu estimación, una venta ordenada te dejaría unos ${eur(valor * (1 - CONFIG.gastosVenta.porcentaje) - CONFIG.gastosVenta.fijos - c.deudaTotal)}.` :
+        tramo === "cerca" ? "Con tu estimación, la venta cubre la deuda, pero no todos los gastos de venta: el resultado quedaría cerca de cero." :
         "Con tu estimación no se cubre la deuda: solo habría operación si el banco acepta una quita y perdona el resto por escrito."],
     ["Fórmulas para seguir en la vivienda", "A valorar", false, "Alquiler posterior u opción de recompra: solo con el contrato revisado por un abogado."],
     ["Dación en pago o acuerdo de cancelación",
@@ -719,20 +806,25 @@ function pintarComparador(c) {
   const v = c.d.estimacion;
   const pend = "Pendiente de valoración";
   const neto = v != null ? v * (1 - CONFIG.gastosVenta.porcentaje) - CONFIG.gastosVenta.fijos - c.deudaTotal : null;
+  const tramo = v == null ? null : tramoVenta(v, c.deudaTotal, c.umbral);
   const filas = [
     ["Seguir pagando (renegociado)", "La conservas", `Sigue: ${eur(c.deudaTotal)}`, c.cuotaAmpliada ? `Cuota de unos ${eur(c.cuotaAmpliada)}/mes si amplías ${CONFIG.ampliacionAnios} años` : "Depende de lo que acepte el banco"],
     ["Venta ordenada", "La vendes", "Se cancela en la firma si el precio la cubre",
-      v == null ? pend : neto >= 0 ? `Unos ${eur(neto)} (tu estimación)` : `Faltarían ${eur(-neto)}: solo con quita y condonación por escrito`],
+      tramo == null ? pend :
+      tramo === "deja" ? `Unos ${eur(neto)} (tu estimación)` :
+      tramo === "cerca" ? "Cubre la deuda, pero no todos los gastos de venta: el resultado quedaría cerca de cero" :
+      `Faltarían unos ${eur(-neto)}: solo con quita y condonación por escrito`],
     ["Compra con cancelación de deuda", "La vendes", "Se cancela en la firma",
-      v == null ? pend : v >= c.deudaTotal ? `La diferencia, unos ${eur(v - c.deudaTotal)}, es tuya y va en la oferta escrita` : "Solo si el banco acepta una quita y perdona el resto por escrito"],
+      "Precio de la oferta menos la deuda total. Suele ser menos que en una venta ordenada, porque el comprador busca un beneficio; a cambio, es más rápida y con plazos seguros. Compara siempre las dos cifras por escrito."],
     ["Dación en pago", "Pasa al banco", "Se cancela si el banco la acepta como pago total", "Sin vivienda y sin deuda; normalmente sin dinero"],
     ["Subasta (si no se actúa)", "Se adjudica, a menudo por debajo de su valor", "Puede quedar deuda pendiente", "Riesgo de embargos y ficheros de morosidad"]
   ];
   const tb = $("#t-comparador tbody");
+  const cabeceras = ["Salida", "Vivienda", "Deuda", "Con qué te quedas"];
   tb.innerHTML = "";
   filas.forEach((f) => {
     const tr = document.createElement("tr");
-    f.forEach((x, i) => { const td = document.createElement(i === 0 ? "th" : "td"); if (i === 0) td.scope = "row"; td.textContent = x; tr.appendChild(td); });
+    f.forEach((x, i) => { const td = document.createElement(i === 0 ? "th" : "td"); if (i === 0) td.scope = "row"; td.dataset.label = cabeceras[i]; td.textContent = x; tr.appendChild(td); });
     tb.appendChild(tr);
   });
   $("#comparador-nota").textContent = v == null
@@ -788,15 +880,20 @@ A la atención de ${v.entidad}
 
 Asunto: Solicitud de estudio de nuevas condiciones de mi préstamo hipotecario
 
-Yo, ${v.nombre}, con DNI ________________, titular del préstamo hipotecario n.º ________________, les comunico que la cuota ${v.cuotaFrase} supera lo que mi unidad familiar puede asumir con sus ingresos actuales.
-
+Yo, ${v.nombre}, con DNI ________________, titular del préstamo hipotecario n.º ________________, ${v.variante === "asumible"
+  ? "les solicito que estudien las opciones disponibles para adaptar las condiciones de mi préstamo a la situación de mi unidad familiar."
+  : `les comunico que la cuota ${v.cuotaFrase} supera lo que mi unidad familiar puede asumir con sus ingresos actuales.`}
+${v.variante === "normal" ? `
 Según mis cálculos, podemos asumir una cuota de aproximadamente ${v.cuotaAsumible} al mes.
+` : ""}
+Solicito que estudien ${v.variante === "sinMargen" ? `estas medidas:
 
-Solicito que estudien alguna de estas medidas:
+1. Un periodo de carencia.
+2. Ampliación del plazo del préstamo.` : `alguna de estas medidas:
 
 1. Ampliación del plazo del préstamo.
 2. Un periodo de carencia.
-3. Novación de las condiciones, incluido el paso a tipo fijo o mixto.
+3. Novación de las condiciones, incluido el paso a tipo fijo o mixto.`}
 
 Quedo a su disposición para aportar la documentación que necesiten y les ruego que me respondan por escrito.
 
@@ -815,9 +912,16 @@ document.querySelectorAll("[data-carta]").forEach((b) => b.addEventListener("cli
     nombre: $("#c-nombre").value.trim() || "________________",
     cuotaFrase: caso ? (caso.d.tipo !== "fijo" && Math.round(caso.cuotaNueva) !== Math.round(caso.d.cuota)
       ? `prevista tras la próxima revisión, de ${eur(caso.cuotaNueva)} al mes,` : `actual, de ${eur(caso.d.cuota)} al mes,`) : "actual",
-    cuotaAsumible: caso ? eur(caso.cuotaAsumible) : "________ €"
+    cuotaAsumible: caso ? eur(caso.cuotaAsumible) : "________ €",
+    // "asumible": el presupuesto cubre la cuota · "sinMargen": no queda margen · "normal": cuota con cifra
+    variante: !caso ? "normal" : caso.cuotaAsumible <= 0 ? "sinMargen" : caso.cuotaAsumible >= caso.cuotaNueva ? "asumible" : "normal"
   };
   cartaActual = b.dataset.carta;
+  const aviso = $("#carta-aviso-caso");
+  aviso.hidden = !(cartaActual === "B" && v.variante !== "normal");
+  aviso.textContent = v.variante === "asumible"
+    ? "Con tus números puedes asumir la cuota tras la revisión. Ahora conviene la carta A (pedir documentación), no la B."
+    : "Con tus números no queda margen para ninguna cuota. La carta B pide carencia y ampliación de plazo, sin cifra; conviene mirar también las salidas 6 a 9 y hablar con nosotros.";
   $("#carta-texto").textContent = PLANTILLAS[cartaActual](v);
   $("#carta-out").hidden = false;
 }));
@@ -864,7 +968,9 @@ function formDatos(form) {
 $("#f-valoracion").addEventListener("submit", (e) => {
   e.preventDefault();
   const out = $("#v-resultado");
+  if (!$("#v-municipio").value.trim()) { out.textContent = "Indica el municipio y el barrio de la vivienda."; return; }
   if (!$("#v-nombre").value.trim() || !$("#v-contacto").value.trim()) { out.textContent = "Indica tu nombre y un teléfono o email."; return; }
+  if (!$("#v-consent-contacto").checked) { out.textContent = "Necesitamos tu consentimiento para poder contactarte."; return; }
   const datos = formDatos(e.target);
   if (!$("#v-consent").checked) delete datos.ubicacion;
   enviar("valoracion", { ...datos, ...resumenCaso() }, out);
