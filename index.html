@@ -132,6 +132,26 @@
     #t-comparador td::before { content: attr(data-label); display: block; font-size: .78rem; font-weight: 700; color: var(--muted); }
     #t-comparador td:last-child { font-weight: 600; }
   }
+  /* Menú: vertical desplegable en móvil, horizontal en escritorio */
+  .menu-btn { font: inherit; font-weight: 600; background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; min-height: 44px; cursor: pointer; }
+  nav[aria-label=Principal] { width: 100%; }
+  nav[aria-label=Principal] ul { display: none; flex-direction: column; gap: 0; padding: 8px 0 4px; }
+  nav[aria-label=Principal].open ul { display: flex; }
+  nav[aria-label=Principal] a { display: block; padding: 10px 4px; text-decoration: none; }
+  nav[aria-label=Principal] a[aria-current=page] { font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
+  @media (min-width: 640px) {
+    .menu-btn { display: none; }
+    nav[aria-label=Principal] ul, nav[aria-label=Principal].open ul { display: flex; flex-direction: row; flex-wrap: wrap; gap: 4px 16px; padding: 0; }
+    nav[aria-label=Principal] a { padding: 4px 0; }
+  }
+  h1:focus { outline: none; }
+  /* Tarjetas con enlace (Inicio y Guías) */
+  .cards { display: grid; gap: 12px; margin: 16px 0; }
+  @media (min-width: 640px) { .cards { grid-template-columns: 1fr 1fr; } }
+  a.card-link { display: block; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-decoration: none; color: var(--text); }
+  a.card-link strong { color: var(--accent); display: block; margin-bottom: 4px; }
+  a.card-link:hover { border-color: var(--accent); }
+  .bloque { padding-top: 24px; }
   pre.letter { white-space: pre-wrap; font-family: inherit; background: var(--surface-2); padding: 16px; border-radius: 8px; font-size: .9rem; }
   footer { border-top: 1px solid var(--border); padding: 24px 0 48px; font-size: .85rem; color: var(--muted); }
   [hidden] { display: none !important; }
@@ -146,12 +166,16 @@
 
 <header class="site">
   <div class="wrap">
-    <a class="brand" href="#" data-config="nombre"></a>
+    <a class="brand" href="#inicio" data-config="nombre"></a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu">Menú</button>
     <nav aria-label="Principal">
-      <ul>
+      <ul id="menu">
+        <li><a href="#inicio">Inicio</a></li>
         <li><a href="#diagnostico">Diagnóstico</a></li>
         <li><a href="#salidas">Salidas</a></li>
-        <li><a href="#preguntas">Preguntas</a></li>
+        <li><a href="#guias">Guías</a></li>
+        <li><a href="#ayuda">Ayuda pública</a></li>
+        <li><a href="#como-trabajamos">Cómo trabajamos</a></li>
         <li><a href="#contacto">Contacto</a></li>
       </ul>
     </nav>
@@ -159,22 +183,50 @@
 </header>
 
 <main>
-  <section>
+  <!-- ============ INICIO ============ -->
+  <section data-tab id="inicio" data-title="No puedo pagar la hipoteca: diagnóstico y salidas en Valencia">
     <div class="wrap">
-      <h1>¿Te está costando pagar la hipoteca?</h1>
+      <h1 tabindex="-1">¿Te está costando pagar la hipoteca?</h1>
       <p class="lead">Es más habitual de lo que parece desde que subieron los tipos, y casi siempre hay más opciones cuanto antes se mira. Aquí puedes ver en unos minutos cuánto pagarás tras la próxima revisión, cuánto margen tienes y qué salidas existen, en orden.</p>
       <p>No hace falta dejar tus datos para ver el resultado.</p>
-      <div class="btn-row"><a class="btn" href="#diagnostico">Empezar el diagnóstico</a></div>
+      <div class="btn-row"><a class="btn" href="#diagnostico">Empezar el diagnóstico</a><a class="btn secondary" href="#salidas">Ver las salidas</a></div>
       <div class="note">
         <strong>Si ya tienes fecha de subasta:</strong> no des nada por perdido. Estudiamos cada caso: <a href="#contacto">escríbenos cuanto antes</a> y busca ya un abogado. Si tus ingresos son bajos, puedes tener derecho a asistencia jurídica gratuita; pregunta en el Colegio de la Abogacía de tu zona.
+      </div>
+
+      <div class="bloque">
+        <h2>Cómo te ayudamos</h2>
+        <ol class="steps">
+          <li><strong>Haz números.</strong> En unos minutos ves cuánto pagarás tras la próxima revisión, cuánto tiempo aguantas y en qué punto estás. Sin dejar tus datos.</li>
+          <li><strong>Mira tus salidas, en orden.</strong> Primero las que te permiten conservar la vivienda. Si una no encaja contigo, te decimos por qué.</li>
+          <li><strong>Si quieres, lo vemos contigo.</strong> Revisamos tu caso con los papeles del banco y te damos las opciones por escrito, con tiempo para consultarlas con un abogado.</li>
+        </ol>
+      </div>
+
+      <div class="bloque">
+        <h2>Lo que nos importa</h2>
+        <ul>
+          <li>Que no te quedes fuera del sistema financiero: sin deuda pendiente después de una subasta, sin ficheros de morosidad y sin embargos.</li>
+          <li>Que conserves tu vivienda si es posible. Vender es una opción más, no el punto de partida.</li>
+          <li>Hablarte claro. Nadie puede garantizarte un resultado, pero sí unas cuentas claras para que decidas tú.</li>
+        </ul>
+      </div>
+
+      <div class="bloque">
+        <h2>Guías para empezar</h2>
+        <div class="cards">
+          <a class="card-link" href="#guia-impago"><strong>Qué pasa si dejo de pagar la hipoteca</strong>Las fases, una a una, y lo que todavía puedes hacer en cada una.</a>
+          <a class="card-link" href="#guia-vender"><strong>Vender tu casa con hipoteca</strong>Las cuentas, los caminos posibles y cómo debe ser una oferta justa.</a>
+          <a class="card-link" href="#guia-cuidado"><strong>Cuidado con estas «soluciones»</strong>Las ofertas que parecen una salida y empeoran el problema.</a>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ DIAGNÓSTICO (tramo rápido) ============ -->
-  <section id="diagnostico">
+  <!-- ============ DIAGNÓSTICO (tramo rápido + resultados) ============ -->
+  <section data-tab id="diagnostico" data-title="Diagnóstico de tu hipoteca">
     <div class="wrap">
-      <h2>Tu diagnóstico</h2>
+      <h1 tabindex="-1">Tu diagnóstico</h1>
       <p class="muted">Unos 10 datos, 2–3 minutos. Si no sabes una cifra exacta, pon una aproximada: los resultados son orientativos. Lo encontrarás en el último recibo o en la carta de revisión del banco.</p>
 
       <form id="f-diag" novalidate>
@@ -237,10 +289,9 @@
         <button class="btn" type="submit">Ver mi diagnóstico</button>
       </form>
     </div>
-  </section>
 
-  <!-- ============ RESULTADOS ============ -->
-  <section id="resultados" hidden aria-live="polite">
+    <!-- Resultados -->
+    <div id="resultados" class="bloque" hidden aria-live="polite">
     <div class="wrap">
       <h2 tabindex="-1" id="res-titulo">Dónde estás</h2>
       <div id="res-estado" class="status"><span class="dot" aria-hidden="true"></span><div><strong></strong><p></p></div></div>
@@ -365,12 +416,13 @@
 
       <p class="wellbeing" data-config="bienestar"></p>
     </div>
+    </div>
   </section>
 
-  <!-- ============ ESCALERA (contenido fijo, SEO) ============ -->
-  <section id="salidas">
+  <!-- ============ SALIDAS ============ -->
+  <section data-tab id="salidas" data-title="Qué hacer si no puedes pagar la hipoteca: las salidas, en orden">
     <div class="wrap">
-      <h2>Las salidas, en orden</h2>
+      <h1 tabindex="-1">Las salidas, en orden</h1>
       <p>Cuando la hipoteca empieza a pesar, lo que más daño hace no es solo perder la casa: es quedar fuera del sistema financiero. Si se llega a subasta, la vivienda suele adjudicarse por debajo de su valor, la deuda puede no quedar saldada y vienen los ficheros de morosidad, los embargos y años sin crédito. Actuar a tiempo corta esa cadena. Por eso miramos las opciones en este orden:</p>
       <ol class="steps">
         <li><strong>Diagnóstico.</strong> Cuota actual y tras la revisión, tasa de esfuerzo (qué parte de tus ingresos se va en deudas), ahorro y otras deudas.</li>
@@ -397,9 +449,9 @@
   </section>
 
   <!-- ============ PREGUNTAS (SEO) ============ -->
-  <section id="preguntas">
+  <section data-tab id="preguntas" data-title="Preguntas frecuentes">
     <div class="wrap">
-      <h2>Preguntas frecuentes</h2>
+      <h1 tabindex="-1">Preguntas frecuentes</h1>
       <details><summary>No puedo pagar la hipoteca, ¿qué hago primero?</summary><div class="inner"><p>Haz números con calma (el <a href="#diagnostico">diagnóstico</a> te ayuda) y pide al banco por escrito el certificado de deuda y la fecha de la próxima revisión. Con eso puedes ver si basta con ajustar gastos o negociar el plazo, o si conviene mirar otras salidas antes de dejar de pagar.</p></div></details>
       <details><summary>¿Puedo vender mi casa si todavía tiene hipoteca?</summary><div class="inner"><p>Sí. Con el dinero de la venta se cancela la hipoteca en la firma. Lo importante es que el precio cubra la deuda total y los gastos de venta; el diagnóstico te muestra ese umbral.</p></div></details>
       <details><summary>¿Cómo evitar la subasta de la vivienda?</summary><div class="inner"><p>Cuanto antes se actúe, más opciones quedan: negociar, vender a tiempo, dación en pago. Si ya hay demanda o fecha de subasta, busca abogado ya y <a href="#contacto">contacta con nosotros</a>; estudiamos cada caso.</p></div></details>
@@ -408,9 +460,10 @@
     </div>
   </section>
 
-  <!-- ============ TRANSPARENCIA ============ -->
-  <section id="transparencia">
+  <!-- ============ CÓMO TRABAJAMOS ============ -->
+  <section data-tab id="como-trabajamos" data-title="Cómo trabajamos">
     <div class="wrap">
+      <h1 tabindex="-1">Cómo trabajamos</h1>
       <h2>Transparencia</h2>
       <ul>
         <li>Por defecto defendemos a la familia. Si en una operación interviene un comprador, te explicamos quién es, qué gana y quién paga a quién.</li>
@@ -422,9 +475,9 @@
   </section>
 
   <!-- ============ CONTACTO (opcional) ============ -->
-  <section id="contacto">
+  <section data-tab id="contacto" data-title="Hablar con nosotros">
     <div class="wrap">
-      <h2>Hablar con nosotros</h2>
+      <h1 tabindex="-1">Hablar con nosotros</h1>
       <p>Es opcional. Si quieres que miremos tu caso, déjanos una forma de contactarte. Te pedimos solo lo necesario: nunca DNI ni números de cuenta.</p>
       <form id="f-contacto" class="card" novalidate>
         <div class="field"><label for="k-nombre">Nombre</label><input id="k-nombre" name="nombre" type="text" autocomplete="given-name" required></div>
@@ -445,7 +498,7 @@
   <div class="wrap">
     <p>Esta web ofrece orientación y cálculos aproximados. No es asesoramiento jurídico, fiscal ni financiero. Ante una ejecución, temas fiscales o la segunda oportunidad, consulta con un abogado o asesor.</p>
     <p data-config="bienestar"></p>
-    <p><span data-config="nombre"></span> · <span data-config="email"></span> · Aviso legal y privacidad: <span data-config="avisoLegal"></span></p>
+    <p><span data-config="nombre"></span> · <span data-config="email"></span> · <a href="#legal">Aviso legal y privacidad</a></p>
   </div>
 </footer>
 
@@ -982,6 +1035,34 @@ $("#f-contacto").addEventListener("submit", (e) => {
   if (!$("#k-consent").checked) { out.textContent = "Necesitamos tu consentimiento para poder contactarte."; return; }
   enviar("contacto", { ...formDatos(e.target), ...($("#k-resumen").checked ? resumenCaso() : {}) }, out);
 });
+
+/* =====================================================================
+   Pestañas · router por hash (vacío o desconocido → #inicio)
+   ===================================================================== */
+const TABS = [...document.querySelectorAll("main > section[data-tab]")];
+const GUIAS = ["guia-impago", "guia-vender", "guia-cuidado", "preguntas"]; // se marcan como «Guías» en el menú
+const menuBtn = $(".menu-btn"), menuNav = $("nav[aria-label=Principal]");
+function cerrarMenu() { menuNav.classList.remove("open"); menuBtn.setAttribute("aria-expanded", "false"); }
+menuBtn.addEventListener("click", () => {
+  const abierto = menuNav.classList.toggle("open");
+  menuBtn.setAttribute("aria-expanded", String(abierto));
+});
+function mostrarPestana(enfocar) {
+  const id = location.hash.slice(1);
+  const tab = TABS.find((t) => t.id === id) || TABS[0];
+  TABS.forEach((t) => { t.hidden = t !== tab; });
+  document.title = tab.dataset.title + " · " + CONFIG.nombre;
+  const activo = GUIAS.includes(tab.id) ? "guias" : tab.id;
+  menuNav.querySelectorAll("a").forEach((a) => {
+    if (a.getAttribute("href") === "#" + activo) a.setAttribute("aria-current", "page");
+    else a.removeAttribute("aria-current");
+  });
+  cerrarMenu();
+  window.scrollTo(0, 0);
+  if (enfocar) tab.querySelector("h1").focus({ preventScroll: true });
+}
+window.addEventListener("hashchange", () => mostrarPestana(true));
+mostrarPestana(false);
 
 if (location.hash === "#test") runTests();
 </script>
