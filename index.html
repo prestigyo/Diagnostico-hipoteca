@@ -25,6 +25,8 @@
     --st-riesgo: #8a5a3c;
     --st-urgente: #4b4f8a;
     --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --marca: #fbefb0;
+    --marca-suave: #fdf8dc;
     --radius: 10px;
     --maxw: 760px;
   }
@@ -44,6 +46,8 @@
       --st-tension: #d1b77a;
       --st-riesgo: #d6a07e;
       --st-urgente: #a9adea;
+      --marca: #5a4f1c;
+      --marca-suave: #2f2b19;
     }
   }
   * { box-sizing: border-box; }
@@ -153,6 +157,9 @@
   .bloque { padding-top: 24px; }
   .guia-nav { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border); }
   .fuentes { font-size: .8rem; color: var(--muted); margin-top: 24px; }
+  /* Marcadores de revisión [CONFIRMAR] [ELEGIR] [OPCIONAL]: solo en el prototipo, no se publican */
+  .marca { background: var(--marca); color: inherit; padding: 0 3px; border-radius: 3px; }
+  .marca-bloque { background: var(--marca-suave); border-radius: var(--radius); padding: 4px 16px; margin: 12px 0; }
   pre.letter { white-space: pre-wrap; font-family: inherit; background: var(--surface-2); padding: 16px; border-radius: 8px; font-size: .9rem; }
   footer { border-top: 1px solid var(--border); padding: 24px 0 48px; font-size: .85rem; color: var(--muted); }
   [hidden] { display: none !important; }
@@ -176,7 +183,7 @@
         <li><a href="#salidas">Salidas</a></li>
         <li><a href="#guias">Guías</a></li>
         <li><a href="#ayuda-publica">Ayuda pública</a></li>
-        <li><a href="#como-trabajamos">Cómo trabajamos</a></li>
+        <li><a href="#quienes-somos">Quiénes somos</a></li>
         <li><a href="#contacto">Contacto</a></li>
       </ul>
     </nav>
@@ -712,12 +719,71 @@
     </div>
   </section>
 
-  <!-- ============ CÓMO TRABAJAMOS ============ -->
-  <section data-tab id="como-trabajamos" data-title="Cómo trabajamos">
+  <!-- ============ QUIÉNES SOMOS (incluye «Cómo trabajamos») ============ -->
+  <section data-tab id="quienes-somos" data-title="Quiénes somos y cómo trabajamos" data-description="Para quién trabajamos y cómo funciona nuestro servicio de ayuda a familias con problemas para pagar la hipoteca en Valencia.">
     <div class="wrap">
-      <h1 tabindex="-1">Cómo trabajamos</h1>
+      <h1 tabindex="-1">Quiénes somos</h1>
+      <p class="lead">Ayudamos a familias de Valencia que empiezan a tener problemas para pagar la hipoteca. Llegamos antes de que el problema acabe en una subasta, y trabajamos para la familia: no para el banco ni para el comprador.</p>
 
-      <h2>Paso a paso</h2>
+      <h2>Qué hacemos</h2>
+      <ul>
+        <li><strong>Ponemos números a tu situación:</strong> cuánto pagarás tras la próxima revisión, cuánto tiempo aguantas y qué margen te queda.</li>
+        <li><strong>Te explicamos tus salidas, en orden,</strong> y te ayudamos con lo práctico: pedir los papeles al banco, preparar una propuesta para negociar y valorar tu vivienda.</li>
+        <li><strong>Si la mejor salida es vender, organizamos la venta</strong> para que salgas sin deuda y con lo que te corresponde. En el mercado, si hay tiempo. Con un comprador que cancela la deuda antes de la subasta, si los plazos aprietan.</li>
+      </ul>
+
+      <h2>Por qué lo hacemos</h2>
+      <p>Cuando una hipoteca deja de poder pagarse, el problema no es solo perder la casa. Si se llega a la subasta, la vivienda suele adjudicarse por debajo de lo que vale, y lo que no se cubre se sigue debiendo. Después vienen los embargos, los ficheros de morosidad y años sin poder pedir un préstamo ni empezar de nuevo.</p>
+      <p>Casi siempre hay salidas mejores, pero se van cerrando con el tiempo. Muchas familias llegan tarde: porque no saben en qué punto están, porque cuesta hablar de ello o porque nadie les ha explicado sus opciones. Queremos estar antes.</p>
+      <p><mark class="marca">[OPCIONAL: una o dos frases tuyas sobre por qué empezaste este proyecto.]</mark></p>
+
+      <h2>El fundamento: salir del problema sin quedarte fuera del sistema</h2>
+      <p>Nuestro trabajo parte de una idea sencilla: si hay que dejar la vivienda, es mucho mejor hacerlo de forma ordenada que esperar a la subasta.</p>
+      <ul>
+        <li><strong>En una salida ordenada,</strong> la casa se vende por un precio razonable, la hipoteca se cancela en la notaría y, si sobra dinero, es tuyo.</li>
+        <li><strong>En una subasta,</strong> la casa suele venderse por menos, la deuda puede no quedar saldada y el problema te acompaña durante años.</li>
+      </ul>
+      <p>Muchas veces, lo que separa una cosa de la otra son unas semanas o unos meses. Por eso lo que más cuenta es actuar pronto.</p>
+
+      <h2>Para quién trabajamos</h2>
+      <p>Trabajamos para la familia. Es a quien defendemos y quien decide.</p>
+      <p>En algunos casos, la mejor salida es que un comprador adquiera la vivienda con fondos propios y cancele la deuda antes de la subasta. Ese comprador gana dinero con la operación; es normal, y te lo diremos. Pero no trabajamos para él. Si su oferta no es buena para ti, no te la recomendamos, y siempre te diremos si vender en el mercado te dejaría más.</p>
+      <p><mark class="marca">[CONFIRMAR: «No compramos viviendas nosotros. Si hace falta un comprador, lo buscamos y te presentamos su oferta por escrito.»]</mark></p>
+
+      <h2>Qué ganas tú</h2>
+      <ul>
+        <li><strong>Saber dónde estás,</strong> con números claros y sin tecnicismos.</li>
+        <li><strong>Ver todas tus opciones,</strong> empezando por las que te permiten conservar la casa.</li>
+        <li><strong>No ir solo:</strong> alguien que hace las cuentas, te ayuda a pedir los papeles y a hablar con el banco, trata con los compradores y te explica cada paso.</li>
+        <li><strong>Si hay que vender, salir sin deuda pendiente</strong> y con la diferencia que te corresponde, en lugar de llegar a la subasta.</li>
+        <li><strong>Proteger tu futuro:</strong> el objetivo es que no arrastres deudas, embargos ni años en ficheros de morosidad, y que puedas volver a pedir un préstamo.</li>
+        <li><strong>Tiempo para decidir:</strong> todas las propuestas, por escrito, para que las revises con un abogado.</li>
+      </ul>
+
+      <h2>Lo que no somos</h2>
+      <ul>
+        <li>No somos un banco ni prestamos dinero.</li>
+        <li>No somos abogados. Cuando haga falta uno, te lo diremos y te explicaremos dónde conseguirlo gratis si te corresponde.</li>
+        <li>No te vendemos refinanciaciones ni reunificaciones de deudas.</li>
+        <li><mark class="marca">[CONFIRMAR, junto con el punto de «Para quién trabajamos»:]</mark> No somos una empresa de «compramos tu casa con deudas».</li>
+      </ul>
+
+      <h2>Cómo funciona el negocio</h2>
+      <p>Somos un servicio profesional, y queremos que sepas desde el principio cómo nos financiamos.</p>
+      <div class="marca-bloque">
+        <p><mark class="marca">[ELEGIR una opción antes de publicar y borrar las demás:]</mark></p>
+        <ul>
+          <li><strong>Opción A · Paga el comprador:</strong> «A ti no te cobramos. Si la salida es vender a un comprador, cobramos una comisión que paga él, y te diremos cuánto antes de que firmes. Esa comisión nunca sale de la parte que te corresponde.»</li>
+          <li><strong>Opción B · Solo si vendes:</strong> «El diagnóstico, la orientación y la ayuda para negociar con tu banco no tienen coste para ti. Solo cobramos si vendes la vivienda, con una comisión que fijamos por escrito antes de empezar y que se paga en la firma.»</li>
+          <li><strong>Opción C · Honorarios conocidos de antemano:</strong> «Cobramos unos honorarios fijos, que conoces antes de empezar, por acompañarte en todo el proceso, se llegue o no a una venta.»</li>
+        </ul>
+      </div>
+      <p>Si en una operación cobramos de las dos partes, te lo diremos por escrito.</p>
+
+      <h2>Quién está detrás</h2>
+      <p><mark class="marca">[CONFIRMAR:]</mark> Detrás de este proyecto está Ramón J. Giménez, consultor inmobiliario en Valencia. <mark class="marca">[Decidir si se menciona la colaboración con Huspy España y con qué papel; añadir trayectoria en una o dos frases y, si quieres, una foto.]</mark></p>
+
+      <h2 id="como-trabajamos">Cómo trabajamos</h2>
       <ol class="steps">
         <li><strong>Tú haces el diagnóstico.</strong> Sin dejar tus datos.</li>
         <li><strong>Si quieres, hablamos.</strong> Nos dejas un teléfono o un email y te llamamos cuando te venga bien.</li>
@@ -730,19 +796,9 @@
 
       <h2>Nuestros compromisos</h2>
       <ul>
-        <li>Defendemos a la familia. Si la mejor salida no pasa por nosotros, te lo decimos igual.</li>
+        <li>Si la mejor salida no pasa por nosotros, te lo decimos igual.</li>
         <li>Nada de prisas, miedo ni promesas.</li>
-        <li>Si en una operación interviene un comprador, te explicamos quién es, qué gana y quién paga a quién.</li>
         <li>No te pedimos el DNI ni números de cuenta por la web, y no compartimos tus datos con un comprador sin tu permiso por escrito.</li>
-        <li>No damos asesoramiento jurídico. Cuando haga falta, te diremos que busques abogado y dónde conseguirlo gratis si te corresponde.</li>
-      </ul>
-
-      <h2>Transparencia</h2>
-      <ul>
-        <li>Por defecto defendemos a la familia. Si en una operación interviene un comprador, te explicamos quién es, qué gana y quién paga a quién.</li>
-        <li>Esta web no busca inversores ni deriva tu caso a terceros.</li>
-        <li>Nuestra valoración es orientativa y profesional, no una tasación oficial.</li>
-        <li><strong>Quién cobra y cómo:</strong> <span data-config="transparenciaIngresos"></span></li>
       </ul>
     </div>
   </section>
