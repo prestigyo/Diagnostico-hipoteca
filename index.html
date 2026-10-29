@@ -667,6 +667,19 @@
     </div>
   </section>
 
+  <!-- ============ AYUDA PÚBLICA (se pinta desde CONFIG.recursos) ============ -->
+  <section data-tab id="ayuda" data-title="Ayuda pública y gratuita en Valencia">
+    <div class="wrap">
+      <h1 tabindex="-1">Ayuda pública y gratuita</h1>
+      <p class="lead">No tienes que pasar por esto solo. Estos servicios públicos pueden orientarte o mediar con tu banco sin coste.</p>
+      <div id="recursos"></div>
+      <ul>
+        <li><strong>Si vives fuera de la ciudad de València:</strong> pregunta en tu ayuntamiento. Algunos tienen servicios de vivienda o de intermediación con los bancos.</li>
+        <li data-config="bienestar"></li>
+      </ul>
+    </div>
+  </section>
+
   <!-- ============ CÓMO TRABAJAMOS ============ -->
   <section data-tab id="como-trabajamos" data-title="Cómo trabajamos">
     <div class="wrap">
@@ -741,6 +754,42 @@ const CONFIG = {
     esfuerzoMinimoAmpliado: 0.40,   // en los casos del límite ampliado
     medidasSubidaTiposFin: "finales de noviembre de 2025 (finales de mayo de 2026 en zonas afectadas por la DANA)"
   },
+
+  // Ayuda pública: el teléfono solo se muestra con verificado: true; el enlace, solo si es una URL
+  recursos: [
+    {
+      id: "oficina-vivienda",
+      nombre: "Oficina por el Derecho a la Vivienda · Ajuntament de València",
+      texto: "Asesoramiento jurídico y mediación con tu banco para vecinos de València que no pueden pagar un asesor. También te atienden si aún estás al día pero prevés que no vas a poder pagar.",
+      enlace: "https://www.valencia.es/cas/vivienda/oficina-derecho-vivienda",
+      telefono: "960 992 397",
+      verificado: false              // teléfono publicado en 2021: confirmar antes de mostrarlo
+    },
+    {
+      id: "soj",
+      nombre: "Servicio de Orientación Jurídica (SOJ) · Colegio de la Abogacía de Valencia",
+      texto: "Te orienta y comprueba si tienes derecho a abogado gratuito (asistencia jurídica gratuita). La cita se pide en persona y atiende la mayor parte de la provincia.",
+      enlace: "[VERIFICAR] enlace directo en icav.es",
+      telefono: null,
+      verificado: false
+    },
+    {
+      id: "bde",
+      nombre: "Banco de España · Portal del Cliente Bancario",
+      texto: "Información sobre el Código de Buenas Prácticas, la lista de bancos adheridos y cómo reclamar si tu banco no te responde o no estás de acuerdo con su respuesta (primero hay que reclamar al propio banco).",
+      enlace: "https://clientebancario.bde.es/pcb/es/menu-horizontal/productosservici/financiacion/deudores-hipotecarios-sin-recursos/",
+      telefono: null,
+      verificado: true
+    },
+    {
+      id: "servicios-sociales",
+      nombre: "Servicios sociales de tu ayuntamiento",
+      texto: "Si te está costando cubrir lo básico (comida, suministros), pueden orientarte sobre ayudas. En València, a través de los centros municipales de servicios sociales.",
+      enlace: "[VERIFICAR] enlace municipal",
+      telefono: null,
+      verificado: false
+    }
+  ],
 
   // Supuestos del cálculo (no son datos legales; se muestran al usuario)
   umbrales: {
@@ -901,6 +950,22 @@ const CALC = {
   cbpEsfuerzoAmpliado: () => pct(CONFIG.cbp.esfuerzoMinimoAmpliado)
 };
 document.querySelectorAll("[data-calc]").forEach((el) => { el.textContent = CALC[el.dataset.calc](); });
+
+CONFIG.recursos.forEach((r) => {
+  const card = document.createElement("div"); card.className = "card"; card.id = "recurso-" + r.id;
+  const h = document.createElement("h2"); h.textContent = r.nombre;
+  const p = document.createElement("p"); p.textContent = r.texto;
+  card.append(h, p);
+  if (/^https?:\/\//.test(r.enlace)) {
+    const a = document.createElement("a"); a.href = r.enlace; a.rel = "noopener"; a.target = "_blank"; a.textContent = "Ir a la web";
+    const pa = document.createElement("p"); pa.appendChild(a); card.appendChild(pa);
+  }
+  if (r.telefono && r.verificado) {
+    const a = document.createElement("a"); a.href = "tel:" + r.telefono.replace(/\s/g, ""); a.textContent = "Teléfono: " + r.telefono;
+    const pt = document.createElement("p"); pt.appendChild(a); card.appendChild(pt);
+  }
+  $("#recursos").appendChild(card);
+});
 $("#indice-hint").textContent = CONFIG.euribor.valor != null
   ? `Dato a fecha ${CONFIG.euribor.fecha} (${CONFIG.euribor.fuente}). Si tu carta de revisión dice otro, cámbialo.`
   : "Míralo en la carta de revisión del banco. Si no lo sabes, déjalo en blanco y calculamos con tu cuota actual.";
