@@ -424,27 +424,92 @@
     <div class="wrap">
       <h1 tabindex="-1">Las salidas, en orden</h1>
       <p>Cuando la hipoteca empieza a pesar, lo que más daño hace no es solo perder la casa: es quedar fuera del sistema financiero. Si se llega a subasta, la vivienda suele adjudicarse por debajo de su valor, la deuda puede no quedar saldada y vienen los ficheros de morosidad, los embargos y años sin crédito. Actuar a tiempo corta esa cadena. Por eso miramos las opciones en este orden:</p>
-      <ol class="steps">
-        <li><strong>Diagnóstico.</strong> Cuota actual y tras la revisión, tasa de esfuerzo (qué parte de tus ingresos se va en deudas), ahorro y otras deudas.</li>
-        <li><strong>Ajustes propios.</strong> Revisar el presupuesto y, si compensa, amortizar parte de la hipoteca con ahorro.</li>
-        <li><strong>Negociar con el banco.</strong> Ampliar el plazo, una carencia (meses pagando menos o solo intereses) o pasar a tipo fijo o mixto.</li>
-        <li><strong>Medidas públicas.</strong> El Código de Buenas Prácticas, si cumples los requisitos y tu banco está adherido.</li>
-        <li><strong>Cambiar de banco.</strong> Llevar la hipoteca a otra entidad si mejora las condiciones.</li>
-        <li><strong>Vender a tiempo.</strong> Venta ordenada en el mercado o venta a un comprador que cancela la deuda en la firma.</li>
-        <li><strong>Fórmulas para seguir en la vivienda.</strong> Alquiler posterior u opción de recompra, siempre con el contrato revisado por un abogado.</li>
-        <li><strong>Dación en pago</strong> (entregar la vivienda al banco a cambio de cancelar la deuda) o un acuerdo de cancelación.</li>
-        <li><strong>Segunda oportunidad.</strong> Procedimiento judicial para personas que no pueden pagar sus deudas; requiere abogado.</li>
-      </ol>
-
-      <h3>Vender con la deuda cancelada: cómo debe ser</h3>
-      <ul>
-        <li>Cuenta la <strong>deuda total</strong>, no solo el capital: cuotas impagadas, intereses de demora, costas y gastos, según el certificado del banco.</li>
-        <li>Si el valor de la vivienda supera esa deuda, <strong>la diferencia es tuya</strong> y debe figurar en la oferta escrita.</li>
-        <li>Si no la cubre, solo tiene sentido si el banco acepta una quita (rebajar la deuda) <strong>y perdona el resto por escrito</strong>. Si no, seguirías debiendo dinero.</li>
-        <li>La oferta, siempre por escrito, con tiempo para consultarla con un abogado, sin exclusivas ni penalizaciones.</li>
-        <li>Después de firmar: carta de pago, cancelación de la hipoteca en el Registro, comprobación en la CIRBE (el registro de deudas del Banco de España) y baja en los ficheros de morosidad.</li>
-        <li>Puede haber impuestos (plusvalía municipal, IRPF). Consúltalo con un asesor fiscal antes de firmar.</li>
-      </ul>
+      <details>
+        <summary>1. Hacer el diagnóstico</summary>
+        <div class="inner">
+          <p><strong>Qué es:</strong> saber cuánto pagarás tras la próxima revisión, qué parte de tus ingresos se va en deudas y cuántos meses te cubre el ahorro.</p>
+          <p><strong>Qué hacer:</strong> usa el diagnóstico y pide al banco por escrito el certificado de deuda, el cuadro de amortización y la fecha de la próxima revisión (carta A).</p>
+        </div>
+      </details>
+      <details>
+        <summary>2. Ajustar el presupuesto</summary>
+        <div class="inner">
+          <p><strong>Qué es:</strong> recortar gastos y, si tienes ahorro de sobra, adelantar una parte de la hipoteca.</p>
+          <p><strong>Cuándo encaja:</strong> cuando el desfase es pequeño o temporal.</p>
+          <p><strong>Qué hacer:</strong> revisa suscripciones, seguros y productos vinculados a la hipoteca; a veces se pueden cambiar, pero comprueba antes si eso sube tu diferencial. Si adelantas dinero y lo que te aprieta es la cuota, elige bajar la cuota en vez del plazo, y pregunta antes la comisión.</p>
+          <p><strong>Cuidado:</strong> no te quedes sin colchón. Conviene guardar al menos tres meses de gastos.</p>
+        </div>
+      </details>
+      <details>
+        <summary>3. Negociar con el banco</summary>
+        <div class="inner">
+          <p><strong>Qué es:</strong> pedir un cambio de condiciones. Más plazo (la cuota baja, pero pagas más intereses en total), una carencia (unos meses pagando menos o solo intereses) o pasar a tipo fijo o mixto (la cuota deja de cambiar).</p>
+          <p><strong>Cuándo encaja:</strong> casi siempre merece la pena intentarlo, y mejor antes del primer impago.</p>
+          <p><strong>Qué hacer:</strong> pídelo por escrito (carta B) y pide la respuesta también por escrito, con la cuota, el tipo, la TAE y los gastos.</p>
+          <p><strong>Cuidado:</strong> lee la oferta antes de firmar. Seguros nuevos, comisiones o meter otros préstamos dentro de la hipoteca pueden encarecerla.</p>
+        </div>
+      </details>
+      <details>
+        <summary>4. Medidas públicas: el Código de Buenas Prácticas</summary>
+        <div class="inner">
+          <p><strong>Qué es:</strong> medidas para familias con muchas dificultades de pago. Solo las aplica el banco que se ha adherido (la adhesión es voluntaria) y solo si cumples los requisitos.</p>
+          <p><strong>Requisitos principales</strong> (a fecha <span data-config="cbp.fecha"></span>):</p>
+          <ul>
+            <li>Es tu vivienda habitual.</li>
+            <li>Los ingresos de la familia no superan <span data-calc="cbpVeces"></span> veces el IPREM anual (unos <span data-calc="cbpLimite"></span> al año; 4 o 5 veces en casos de discapacidad, dependencia o enfermedad que impida trabajar).</li>
+            <li>La cuota de la hipoteca supera el <span data-calc="cbpEsfuerzo"></span> de los ingresos netos (el <span data-calc="cbpEsfuerzoAmpliado"></span> en esos casos).</li>
+            <li>Tu situación ha empeorado en los últimos cuatro años: ha subido tu esfuerzo o han surgido circunstancias de especial vulnerabilidad.</li>
+            <li>El precio de compra de la vivienda no supera ciertos límites.</li>
+          </ul>
+          <p><strong>Qué ofrece, en este orden:</strong> reestructurar la deuda; si no es viable, una quita o la dación en pago; y, si la vivienda ya se ha ejecutado, alquilarla en condiciones favorables.</p>
+          <p><strong>Qué hacer:</strong> pregunta a tu banco si está adherido (carta A). La lista de bancos adheridos está en el Portal del Cliente Bancario del Banco de España.</p>
+          <p><strong>Cuidado:</strong> las medidas especiales por la subida de tipos que se aprobaron en 2022 ya han terminado (<span data-config="cbp.medidasSubidaTiposFin"></span>).</p>
+        </div>
+      </details>
+      <details>
+        <summary>5. Cambiar de banco</summary>
+        <div class="inner">
+          <p><strong>Qué es:</strong> llevar tu hipoteca a otra entidad que te dé mejores condiciones.</p>
+          <p><strong>Cuándo encaja:</strong> si estás al día y tu esfuerzo es asumible. Con impagos, es muy difícil que otro banco la acepte.</p>
+          <p><strong>Qué hacer:</strong> compara la oferta completa (tipo, TAE, productos vinculados y gastos del cambio) y enséñasela también a tu banco: a veces mejora sus condiciones para no perderte.</p>
+          <p><strong>Cuidado:</strong> si solo baja la cuota porque alarga mucho el plazo, puede salirte más cara.</p>
+        </div>
+      </details>
+      <details>
+        <summary>6. Vender a tiempo</summary>
+        <div class="inner">
+          <p><strong>Qué es:</strong> vender antes de que el problema llegue a subasta, cancelar la hipoteca en la firma y quedarte con la diferencia, si la hay.</p>
+          <p><strong>Dos formas:</strong> venta ordenada en el mercado (suele dar mejor precio, pero lleva meses) o venta a un comprador que paga con fondos propios y cancela la deuda en la firma (más rápida, normalmente a un precio menor).</p>
+          <p><strong>Cuándo encaja:</strong> cuando no hay forma razonable de mantener la cuota y la vivienda vale más que la deuda total.</p>
+          <p><strong>Qué hacer:</strong> lee la guía <a href="#guia-vender">«Vender tu casa con hipoteca»</a>.</p>
+        </div>
+      </details>
+      <details>
+        <summary>7. Seguir en la vivienda después de venderla</summary>
+        <div class="inner">
+          <p><strong>Qué es:</strong> vender y quedarte de alquiler, a veces con la opción de volver a comprarla más adelante.</p>
+          <p><strong>Cuándo encaja:</strong> si necesitas tiempo (colegio, trabajo, salud) y el alquiler es asumible.</p>
+          <p><strong>Cuidado:</strong> son contratos delicados. Que los revise un abogado antes de firmar: precio y plazo de recompra realistas, y qué pasa si te retrasas con el alquiler.</p>
+        </div>
+      </details>
+      <details>
+        <summary>8. Dación en pago o acuerdo de cancelación</summary>
+        <div class="inner">
+          <p><strong>Qué es:</strong> entregar la vivienda al banco a cambio de que cancele la deuda.</p>
+          <p><strong>Cuándo encaja:</strong> si la vivienda vale menos de lo que debes y no hay otra salida.</p>
+          <p><strong>Qué hacer:</strong> el banco no está obligado a aceptarla, salvo dentro del Código de Buenas Prácticas si cumples los requisitos. Exige por escrito que la deuda queda cancelada del todo.</p>
+          <p><strong>Cuidado:</strong> los impuestos no son los mismos que en una venta. Consúltalo con un asesor fiscal.</p>
+        </div>
+      </details>
+      <details>
+        <summary>9. Segunda oportunidad</summary>
+        <div class="inner">
+          <p><strong>Qué es:</strong> un procedimiento judicial para personas que no pueden pagar sus deudas. Si se cumplen los requisitos, puede terminar con la cancelación de las deudas que no se pueden pagar.</p>
+          <p><strong>Cuándo encaja:</strong> cuando, incluso después de vender o entregar la vivienda, quedan deudas imposibles de pagar.</p>
+          <p><strong>Qué hacer:</strong> necesitas abogado. Si tus ingresos son bajos, pregunta por la asistencia jurídica gratuita (pestaña <a href="#ayuda">Ayuda pública</a>).</p>
+        </div>
+      </details>
+      <div class="btn-row"><a class="btn" href="#diagnostico">Mira cuáles encajan con tus números</a></div>
     </div>
   </section>
 
@@ -685,7 +750,15 @@ function num(id) {
 }
 const radio = (name) => (document.querySelector(`input[name=${name}]:checked`) || {}).value;
 
-document.querySelectorAll("[data-config]").forEach((el) => { el.textContent = CONFIG[el.dataset.config]; });
+// data-config admite rutas ("cbp.fecha"); data-calc, cifras derivadas de CONFIG
+document.querySelectorAll("[data-config]").forEach((el) => { el.textContent = el.dataset.config.split(".").reduce((o, k) => o[k], CONFIG); });
+const CALC = {
+  cbpVeces: () => CONFIG.cbp.ingresosVecesIPREM,
+  cbpLimite: () => eur(CONFIG.cbp.ingresosVecesIPREM * CONFIG.iprem.anual14Pagas),
+  cbpEsfuerzo: () => pct(CONFIG.cbp.esfuerzoMinimo),
+  cbpEsfuerzoAmpliado: () => pct(CONFIG.cbp.esfuerzoMinimoAmpliado)
+};
+document.querySelectorAll("[data-calc]").forEach((el) => { el.textContent = CALC[el.dataset.calc](); });
 $("#indice-hint").textContent = CONFIG.euribor.valor != null
   ? `Dato a fecha ${CONFIG.euribor.fecha} (${CONFIG.euribor.fuente}). Si tu carta de revisión dice otro, cámbialo.`
   : "Míralo en la carta de revisión del banco. Si no lo sabes, déjalo en blanco y calculamos con tu cuota actual.";
