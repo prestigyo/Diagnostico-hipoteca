@@ -674,12 +674,37 @@
     </div>
   </section>
 
-  <!-- ============ AYUDA PÚBLICA (se pinta desde CONFIG.recursos) ============ -->
+  <!-- ============ AYUDA PÚBLICA (texto en el HTML; datos y verificación en CONFIG.recursos) ============ -->
   <section data-tab id="ayuda-publica" data-title="Ayuda pública si no puedes pagar la hipoteca en Valencia" data-description="Servicios públicos en Valencia que orientan o median con tu banco si no puedes pagar la hipoteca: oficina de vivienda, abogado de oficio y más.">
     <div class="wrap">
       <h1 tabindex="-1">Ayuda pública y gratuita</h1>
       <p class="lead">No tienes que pasar por esto solo. Estos servicios públicos pueden orientarte o mediar con tu banco sin coste.</p>
-      <div id="recursos"></div>
+      <div id="recursos">
+        <div class="card" id="recurso-oficina-vivienda">
+          <h2>Oficina por el Derecho a la Vivienda · Ajuntament de València</h2>
+          <p>Asesoramiento jurídico y mediación con tu banco para vecinos de València que no pueden pagar un asesor. También te atienden si aún estás al día pero prevés que no vas a poder pagar.</p>
+          <p><a href="https://www.valencia.es/cas/vivienda/oficina-derecho-vivienda" rel="noopener" target="_blank">Ir a la web</a></p>
+          <p class="recurso-tel" hidden></p>
+        </div>
+        <div class="card" id="recurso-soj">
+          <h2>Servicio de Orientación Jurídica (SOJ) · Colegio de la Abogacía de Valencia</h2>
+          <p>Te orienta y comprueba si tienes derecho a abogado gratuito (asistencia jurídica gratuita). La cita se pide en persona y atiende la mayor parte de la provincia.</p>
+          <!-- enlace pendiente de verificar en icav.es -->
+          <p class="recurso-tel" hidden></p>
+        </div>
+        <div class="card" id="recurso-bde">
+          <h2>Banco de España · Portal del Cliente Bancario</h2>
+          <p>Información sobre el Código de Buenas Prácticas, la lista de bancos adheridos y cómo reclamar si tu banco no te responde o no estás de acuerdo con su respuesta (primero hay que reclamar al propio banco).</p>
+          <p><a href="https://clientebancario.bde.es/pcb/es/menu-horizontal/productosservici/financiacion/deudores-hipotecarios-sin-recursos/" rel="noopener" target="_blank">Ir a la web</a></p>
+          <p class="recurso-tel" hidden></p>
+        </div>
+        <div class="card" id="recurso-servicios-sociales">
+          <h2>Servicios sociales de tu ayuntamiento</h2>
+          <p>Si te está costando cubrir lo básico (comida, suministros), pueden orientarte sobre ayudas. En València, a través de los centros municipales de servicios sociales.</p>
+          <!-- enlace municipal pendiente de verificar -->
+          <p class="recurso-tel" hidden></p>
+        </div>
+      </div>
       <ul>
         <li><strong>Si vives fuera de la ciudad de València:</strong> pregunta en tu ayuntamiento. Algunos tienen servicios de vivienda o de intermediación con los bancos.</li>
         <li data-config="bienestar"></li>
@@ -799,7 +824,8 @@ const CONFIG = {
     medidasSubidaTiposFin: "finales de noviembre de 2025 (finales de mayo de 2026 en zonas afectadas por la DANA)"
   },
 
-  // Ayuda pública: el teléfono solo se muestra con verificado: true; el enlace, solo si es una URL
+  // Ayuda pública: el texto y los enlaces verificados van escritos en el HTML (indexables).
+  // El teléfono solo se muestra con verificado: true. Si cambias un recurso, cámbialo también en el HTML.
   recursos: [
     {
       id: "oficina-vivienda",
@@ -995,20 +1021,12 @@ const CALC = {
 };
 document.querySelectorAll("[data-calc]").forEach((el) => { el.textContent = CALC[el.dataset.calc](); });
 
+// Ayuda pública: el texto ya está en el HTML; el teléfono solo aparece si está verificado
 CONFIG.recursos.forEach((r) => {
-  const card = document.createElement("div"); card.className = "card"; card.id = "recurso-" + r.id;
-  const h = document.createElement("h2"); h.textContent = r.nombre;
-  const p = document.createElement("p"); p.textContent = r.texto;
-  card.append(h, p);
-  if (/^https?:\/\//.test(r.enlace)) {
-    const a = document.createElement("a"); a.href = r.enlace; a.rel = "noopener"; a.target = "_blank"; a.textContent = "Ir a la web";
-    const pa = document.createElement("p"); pa.appendChild(a); card.appendChild(pa);
-  }
-  if (r.telefono && r.verificado) {
-    const a = document.createElement("a"); a.href = "tel:" + r.telefono.replace(/\s/g, ""); a.textContent = "Teléfono: " + r.telefono;
-    const pt = document.createElement("p"); pt.appendChild(a); card.appendChild(pt);
-  }
-  $("#recursos").appendChild(card);
+  const tel = $("#recurso-" + r.id + " .recurso-tel");
+  if (!tel || !r.telefono || !r.verificado) return;
+  const a = document.createElement("a"); a.href = "tel:" + r.telefono.replace(/\s/g, ""); a.textContent = "Teléfono: " + r.telefono;
+  tel.appendChild(a); tel.hidden = false;
 });
 $("#indice-hint").textContent = CONFIG.euribor.valor != null
   ? `Dato a fecha ${CONFIG.euribor.fecha} (${CONFIG.euribor.fuente}). Si tu carta de revisión dice otro, cámbialo.`
