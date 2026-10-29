@@ -119,18 +119,17 @@
   table { width: 100%; border-collapse: collapse; font-size: .9rem; }
   th, td { text-align: left; vertical-align: top; padding: 8px; border-bottom: 1px solid var(--border); }
   .table-scroll { overflow-x: auto; }
-  /* Comparador en móvil: una tarjeta por salida */
+  /* Tablas .t-cards en móvil: una tarjeta por fila (comparador y guía de venta) */
   @media (max-width: 639px) {
-    #t-comparador thead { position: absolute; left: -9999px; }
-    #t-comparador, #t-comparador tbody, #t-comparador tr, #t-comparador th, #t-comparador td { display: block; width: 100%; }
-    #t-comparador tr { display: flex; flex-direction: column; }
-    #t-comparador td { order: 2; }
-    #t-comparador td:last-child { order: 1; } /* «Con qué te quedas» justo bajo el título */
-    #t-comparador tr { border: 1px solid var(--border); border-radius: var(--radius); padding: 4px 12px; margin-bottom: 12px; background: var(--surface-2); }
-    #t-comparador th[scope=row] { font-size: 1rem; border-bottom: 1px solid var(--border); }
-    #t-comparador td { border-bottom: 0; padding: 6px 0; }
-    #t-comparador td::before { content: attr(data-label); display: block; font-size: .78rem; font-weight: 700; color: var(--muted); }
-    #t-comparador td:last-child { font-weight: 600; }
+    .t-cards thead { position: absolute; left: -9999px; }
+    .t-cards, .t-cards tbody, .t-cards tr, .t-cards th, .t-cards td { display: block; width: 100%; }
+    .t-cards tr { display: flex; flex-direction: column; }
+    .t-cards td { order: 2; }
+    #t-comparador td:last-child { order: 1; font-weight: 600; } /* «Con qué te quedas» justo bajo el título */
+    .t-cards tr { border: 1px solid var(--border); border-radius: var(--radius); padding: 4px 12px; margin-bottom: 12px; background: var(--surface-2); }
+    .t-cards th[scope=row] { font-size: 1rem; border-bottom: 1px solid var(--border); }
+    .t-cards td { border-bottom: 0; padding: 6px 0; }
+    .t-cards td::before { content: attr(data-label); display: block; font-size: .78rem; font-weight: 700; color: var(--muted); }
   }
   /* Menú: vertical desplegable en móvil, horizontal en escritorio */
   .menu-btn { font: inherit; font-weight: 600; background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; min-height: 44px; cursor: pointer; }
@@ -344,7 +343,7 @@
       <details id="m-comparador">
         <summary>Comparador de salidas: con qué te quedas en cada caso</summary>
         <div class="inner">
-          <div class="table-scroll"><table id="t-comparador">
+          <div class="table-scroll"><table id="t-comparador" class="t-cards">
             <thead><tr><th scope="col">Salida</th><th scope="col">Vivienda</th><th scope="col">Deuda</th><th scope="col">Con qué te quedas</th></tr></thead>
             <tbody></tbody>
           </table></div>
@@ -566,6 +565,50 @@
 
       <p class="fuentes">Fuentes y fecha: Ley 5/2019, art. 24 (explicado por el Banco de España) · Ley de Enjuiciamiento Civil, art. 671 · Información a fecha <span data-config="cbp.fecha"></span>.</p>
       <nav class="guia-nav" aria-label="Guías"><a href="#guias">← Todas las guías</a><a href="#guia-vender">Siguiente guía →</a></nav>
+    </div>
+  </section>
+
+  <!-- ============ GUÍA: vender con hipoteca (autocontenida) ============ -->
+  <section data-tab id="guia-vender" data-title="Vender tu casa con hipoteca">
+    <div class="wrap">
+      <h1 tabindex="-1">Vender tu casa con hipoteca</h1>
+      <p class="lead">Sí se puede vender una vivienda con hipoteca. En la notaría, con el dinero de la venta se paga al banco y la hipoteca se cancela. Lo importante es hacer bien las cuentas y no firmar con prisas.</p>
+
+      <h2>Las cuentas</h2>
+      <p class="card"><strong>Precio de venta − deuda total − gastos de la venta = lo que te queda.</strong></p>
+      <ul>
+        <li><strong>Deuda total:</strong> no es solo el capital. Si hay impagos, súmale las cuotas vencidas, los intereses de demora, las costas y los gastos. La cifra exacta te la da el certificado de deuda del banco.</li>
+        <li><strong>Gastos de la venta:</strong> la comisión de la agencia, si la hay, la plusvalía municipal, la cancelación de la hipoteca en el Registro y otros gastos de notaría o gestoría.</li>
+        <li>El <a href="#diagnostico">diagnóstico</a> te muestra el <strong>umbral</strong>: el precio a partir del cual vender te deja dinero.</li>
+      </ul>
+
+      <h2>Tres caminos</h2>
+      <div class="table-scroll"><table class="t-cards">
+        <thead><tr><th scope="col">Camino</th><th scope="col">Tiempo</th><th scope="col">Precio</th><th scope="col">Lo que te queda</th><th scope="col">Cuándo encaja</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Venta en el mercado</th><td data-label="Tiempo">Meses</td><td data-label="Precio">El de mercado</td><td data-label="Lo que te queda">Precio − deuda − gastos</td><td data-label="Cuándo encaja">Si hay tiempo</td></tr>
+          <tr><th scope="row">Comprador que cancela la deuda</th><td data-label="Tiempo">Más rápido</td><td data-label="Precio">Normalmente por debajo: el comprador busca un beneficio</td><td data-label="Lo que te queda">Precio ofrecido − deuda − gastos</td><td data-label="Cuándo encaja">Si los plazos aprietan</td></tr>
+          <tr><th scope="row">Dación en pago</th><td data-label="Tiempo">Depende del banco</td><td data-label="Precio">No recibes dinero</td><td data-label="Lo que te queda">Nada, pero sin deuda si el banco la acepta como pago total</td><td data-label="Cuándo encaja">Si la casa vale menos que la deuda</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2>Cómo debe ser una oferta justa</h2>
+      <ul>
+        <li>Por escrito, con el precio, la deuda total que se cancela y la diferencia que recibes tú.</li>
+        <li>Con tiempo para consultarla con un abogado. Sin exclusivas ni penalizaciones.</li>
+        <li>Comparada con lo que obtendrías vendiendo en el mercado, si hay tiempo.</li>
+        <li>Con la nota simple revisada: los embargos u otras cargas posteriores a la hipoteca reducen lo que te queda.</li>
+        <li>Diciendo quién cobra en la operación y cuánto.</li>
+        <li>Con el final asegurado: carta de pago del banco, cancelación en el Registro, comprobación en la CIRBE y baja en los ficheros de morosidad.</li>
+      </ul>
+
+      <h2>Si la casa vale menos de lo que debes</h2>
+      <p>Solo tiene sentido vender si el banco acepta una quita (rebajar la deuda) <strong>y perdona el resto por escrito</strong>. Si no, seguirías debiendo dinero sin tener la casa. Las alternativas son la dación en pago o la segunda oportunidad.</p>
+
+      <h2>Impuestos</h2>
+      <p>Vender puede tener impuestos: la plusvalía municipal y el IRPF. Una venta, una dación en pago y una ejecución no tributan igual. Consúltalo con un asesor fiscal antes de firmar.</p>
+
+      <nav class="guia-nav" aria-label="Guías"><a href="#guias">← Todas las guías</a><a href="#guia-cuidado">Siguiente guía →</a></nav>
     </div>
   </section>
 
