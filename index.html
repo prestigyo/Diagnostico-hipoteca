@@ -734,6 +734,21 @@
       <p class="wellbeing" data-config="bienestar"></p>
     </div>
   </section>
+
+  <!-- ============ AVISO LEGAL (marcadores) ============ -->
+  <section data-tab id="legal" data-title="Aviso legal y privacidad">
+    <div class="wrap">
+      <h1 tabindex="-1">Aviso legal y privacidad</h1>
+      <p class="note"><strong>Pendiente de completar antes de publicar la web.</strong></p>
+      <h2>Responsable</h2><p>[PENDIENTE]</p>
+      <h2>Para qué usamos tus datos</h2><p>[PENDIENTE]</p>
+      <h2>Base legal</h2><p>[PENDIENTE]</p>
+      <h2>Cuánto tiempo los guardamos y cuándo se borran</h2><p>[PENDIENTE]</p>
+      <h2>Con quién se comparten</h2><p>[PENDIENTE]</p>
+      <h2>Tus derechos y cómo ejercerlos</h2><p>[PENDIENTE]</p>
+      <h2>Cookies</h2><p>[PENDIENTE]</p>
+    </div>
+  </section>
 </main>
 
 <footer>
@@ -1391,7 +1406,9 @@ function mostrarPestana(enfocar) {
     else a.removeAttribute("aria-current");
   });
   cerrarMenu();
-  window.scrollTo(0, 0);
+  // el navegador salta al ancla después del evento: subir también en el siguiente fotograma
+  window.scrollTo({ top: 0, behavior: "instant" });
+  requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "instant" }));
   if (enfocar) tab.querySelector("h1").focus({ preventScroll: true });
 }
 window.addEventListener("hashchange", () => mostrarPestana(true));
