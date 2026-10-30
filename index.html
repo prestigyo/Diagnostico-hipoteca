@@ -1075,6 +1075,8 @@ const radio = (name) => (document.querySelector(`input[name=${name}]:checked`) |
 document.querySelectorAll("[data-config]").forEach((el) => { el.textContent = el.dataset.config.split(".").reduce((o, k) => o[k], CONFIG); });
 // Enlace a la sección de familias del portal (herencia, separación, mudanza…), solo si hay URL
 if (CONFIG.urlPortal) document.querySelectorAll("[data-portal]").forEach((li) => { li.querySelector("a").href = new URL("familias/", CONFIG.urlPortal).href; li.hidden = false; });
+// La marca de la cabecera lleva a la portada de Euporia
+if (CONFIG.urlPortal) { const marca = document.querySelector("header.site .brand"); marca.href = CONFIG.urlPortal; marca.title = "Ir a la portada de Euporia"; }
 const CALC = {
   cbpVeces: () => CONFIG.cbp.ingresosVecesIPREM,
   cbpLimite: () => eur(CONFIG.cbp.ingresosVecesIPREM * CONFIG.iprem.anual14Pagas),
